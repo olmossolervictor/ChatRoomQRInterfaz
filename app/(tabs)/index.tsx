@@ -1,98 +1,225 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
-
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+import React from 'react';
+import { View, Text, StyleSheet, ScrollView, Pressable, Image } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function HomeScreen() {
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <View style={styles.profileSection}>
+          <View style={styles.avatarContainer}>
+            <Image 
+              source={{ uri: 'https://via.placeholder.com/80' }} 
+              style={styles.avatar} 
             />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+            <View style={styles.editIcon}>
+              <Ionicons name="camera" size={16} color="white" />
+            </View>
+          </View>
+          <View style={styles.userInfo}>
+            <Text style={styles.userName}>Olmos</Text>
+            <Text style={styles.userStatus}>Activo</Text>
+          </View>
+        </View>
+        
+        <View style={styles.statsContainer}>
+          <View style={styles.statItem}>
+            <Text style={styles.statNumber}>0</Text>
+            <Text style={styles.statLabel}>Chats</Text>
+          </View>
+          <View style={styles.statDivider} />
+          <View style={styles.statItem}>
+            <Text style={styles.statNumber}>0</Text>
+            <Text style={styles.statLabel}>Amigos</Text>
+          </View>
+          <View style={styles.statDivider} />
+          <View style={styles.statItem}>
+            <Text style={styles.statNumber}>0</Text>
+            <Text style={styles.statLabel}>Visitas</Text>
+          </View>
+        </View>
+      </View>
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+      <ScrollView style={styles.menuContainer} showsVerticalScrollIndicator={false}>
+        <View style={styles.menuSection}>
+          <Text style={styles.sectionTitle}>MI CUENTA</Text>
+          
+          <Pressable style={styles.menuItem}>
+            <View style={styles.menuIcon}>
+              <Ionicons name="person" size={20} color="#007AFF" />
+            </View>
+            <Text style={styles.menuText}>Modificar Perfil</Text>
+            <Ionicons name="chevron-forward" size={16} color="#ccc" />
+          </Pressable>
+
+          <Pressable style={styles.menuItem}>
+            <View style={styles.menuIcon}>
+              <Ionicons name="information-circle" size={20} color="#007AFF" />
+            </View>
+            <Text style={styles.menuText}>Datos Adicionales</Text>
+            <Ionicons name="chevron-forward" size={16} color="#ccc" />
+          </Pressable>
+
+          <Pressable style={styles.menuItem}>
+            <View style={styles.menuIcon}>
+              <Ionicons name="settings" size={20} color="#007AFF" />
+            </View>
+            <Text style={styles.menuText}>Ajustes</Text>
+            <Ionicons name="chevron-forward" size={16} color="#ccc" />
+          </Pressable>
+        </View>
+
+        <View style={styles.menuSection}>
+          <Text style={styles.sectionTitle}>SOCIAL</Text>
+          
+          <Pressable style={styles.menuItem}>
+            <View style={styles.menuIcon}>
+              <Ionicons name="people" size={20} color="#007AFF" />
+            </View>
+            <Text style={styles.menuText}>Amigos</Text>
+            <Ionicons name="chevron-forward" size={16} color="#ccc" />
+          </Pressable>
+
+          <Pressable style={styles.menuItem}>
+            <View style={styles.menuIcon}>
+              <Ionicons name="notifications" size={20} color="#007AFF" />
+            </View>
+            <Text style={styles.menuText}>Notificaciones</Text>
+            <Ionicons name="chevron-forward" size={16} color="#ccc" />
+          </Pressable>
+        </View>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
+  container: {
+    flex: 1,
+    backgroundColor: '#f5f5f5',
+  },
+  header: {
+    backgroundColor: '#007AFF',
+    paddingHorizontal: 20,
+    paddingTop: 60,
+    paddingBottom: 30,
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
+  },
+  profileSection: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    marginBottom: 25,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  avatarContainer: {
+    position: 'relative',
+    marginRight: 15,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
+  avatar: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: '#ffffff',
+  },
+  editIcon: {
     position: 'absolute',
+    bottom: 0,
+    right: 0,
+    backgroundColor: '#34C759',
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: 'white',
+  },
+  userInfo: {
+    flex: 1,
+  },
+  userName: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: 'white',
+    marginBottom: 4,
+    fontFamily: 'WorkSans-Black',
+  },
+  userStatus: {
+    fontSize: 14,
+    color: 'rgba(255, 255, 255, 0.8)',
+    fontFamily: 'WorkSans-Medium',
+  },
+  statsContainer: {
+    flexDirection: 'row',
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    borderRadius: 15,
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+  },
+  statItem: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  statNumber: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: 'white',
+    marginBottom: 4,
+    fontFamily: 'WorkSans-Black',
+  },
+  statLabel: {
+    fontSize: 12,
+    color: 'rgba(255, 255, 255, 0.8)',
+    fontFamily: 'WorkSans-Medium',
+  },
+  statDivider: {
+    width: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    marginHorizontal: 15,
+  },
+  menuContainer: {
+    flex: 1,
+    paddingHorizontal: 20,
+    paddingTop: 20,
+  },
+  menuSection: {
+    marginBottom: 30,
+  },
+  sectionTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#666',
+    marginBottom: 15,
+    marginLeft: 5,
+    fontFamily: 'WorkSans-Medium',
+  },
+  menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'white',
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    marginBottom: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  menuIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#f0f8ff',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 15,
+  },
+  menuText: {
+    flex: 1,
+    fontSize: 16,
+    color: '#333',
+    fontFamily: 'WorkSans-Medium',
   },
 });

@@ -1,24 +1,32 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
+import { Slot, SplashScreen, Stack } from "expo-router"
+import "../global.css"
+import {useFonts} from 'expo-font'
+import React, { useEffect } from "react";
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
-import { useColorScheme } from '@/hooks/use-color-scheme';
+const RootLayout = () => {
+    const [fontsLoaded, error] =useFonts({
+    'WorkSans-Black':require('../assets/fonts/WorkSans-Black.ttf'),
+    'WorkSans-Light':require('../assets/fonts/WorkSans-Light.ttf'), 
+    'WorkSans-Medium':require('../assets/fonts/WorkSans-Medium.ttf')  
+  });
 
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
+  useEffect(()=>{
+    if ( error )throw error;
 
-export default function RootLayout() {
-  const colorScheme = useColorScheme();
-
+    if (fontsLoaded) SplashScreen.hideAsync();
+  }, [fontsLoaded, error])
+   
+  if (!fontsLoaded && !error) return null;
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+    <GestureHandlerRootView style={{flex:1}}>
+      <Stack screenOptions={{headerShown:false}}>
+        <Stack.Screen name="/(tabs)" />
+        <Stack.Screen name="auth/login" />
+        <Stack.Screen name="auth/register" />
       </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
-  );
-}
+    </GestureHandlerRootView>
+  );   
+};
+export default RootLayout
+

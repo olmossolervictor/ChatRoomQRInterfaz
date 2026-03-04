@@ -1,35 +1,112 @@
-import { Tabs } from 'expo-router';
 import React from 'react';
-
-import { HapticTab } from '@/components/haptic-tab';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { View, StyleSheet, Text as RNText } from 'react-native';
+import { Tabs } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
-        tabBarButton: HapticTab,
-      }}>
+        tabBarActiveTintColor: '#007AFF',
+        tabBarInactiveTintColor: '#8E8E93',
+        tabBarStyle: {
+          backgroundColor: '#ffffff',
+          borderTopWidth: 0,
+          height: 80,
+          paddingBottom: 10,
+          paddingTop: 10,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: 0.1,
+          shadowRadius: 8,
+          elevation: 8,
+        },
+        tabBarItemStyle: {
+          paddingVertical: 8,
+        },
+        tabBarLabelStyle: {
+          fontSize: 12,
+          fontWeight: '600',
+          marginTop: 4,
+          fontFamily: 'WorkSans-Medium',
+        },
+        tabBarIconStyle: {
+          marginBottom: 2,
+        },
+        headerStyle: {
+          backgroundColor: '#ffffff',
+        },
+        headerTintColor: '#333',
+        headerTitleStyle: {
+          fontFamily: 'WorkSans-Medium',
+        },
+      }}
+    >
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          title: 'Inicio',
+          tabBarIcon: ({ color, size, focused }) => (
+            <View style={focused ? styles.tabIconFocused : styles.tabIcon}>
+              <Ionicons name="home" size={24} color={focused ? '#ffffff' : color} />
+            </View>
+          ),
+          headerShown: false,
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="chat-general/index"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          title: 'Chat General',
+          tabBarIcon: ({ color, size, focused }) => (
+            <View style={focused ? styles.tabIconFocused : styles.tabIcon}>
+              <Ionicons name="people" size={24} color={focused ? '#ffffff' : color} />
+            </View>
+          ),
+          headerShown: false,
+        }}
+      />
+      <Tabs.Screen
+        name="chats-privados/index"
+        options={{
+          title: 'Chats Privados',
+          tabBarIcon: ({ color, size, focused }) => (
+            <View style={focused ? styles.tabIconFocused : styles.tabIcon}>
+              <Ionicons name="chatbubbles" size={24} color={focused ? '#ffffff' : color} />
+            </View>
+          ),
+          headerShown: false,
         }}
       />
     </Tabs>
   );
 }
+
+const styles = StyleSheet.create({
+  tabIcon: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: '#f5f5f5',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  tabIconFocused: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: '#007AFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#007AFF',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+});
