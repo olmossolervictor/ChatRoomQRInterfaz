@@ -45,7 +45,7 @@ export default function LoginScreen() {
           `¡Hola ${user.nombre}! Has iniciado sesión correctamente.`,
           [
             {
-              text: 'Continuar',
+              text: 'OK',
               onPress: () => router.replace('/(tabs)/chat-general' as any)
             }
           ]
@@ -53,8 +53,9 @@ export default function LoginScreen() {
       } else {
         setIsLoading(false);
         Alert.alert(
-          'Error de Inicio de Sesión', 
-          'El usuario o contraseña son incorrectos. Por favor, verifica tus datos e intenta de nuevo.'
+          'Error de Inicio de Sesión',
+          'El usuario o contraseña son incorrectos. Por favor, verifica tus datos e intenta de nuevo.',
+          [{ text: 'OK' }]
         );
       }
       

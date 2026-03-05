@@ -1,50 +1,58 @@
-# Welcome to your Expo app 👋
+# ChatRoomQR 🎉
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Aplicación móvil de chat social para discotecas que permite a los usuarios conectar y comunicarse dentro del mismo local mediante escaneo de códigos QR.
 
-## Get started
+## 📱 Funcionalidades Principales
 
-1. Install dependencies
+- **Registro y Login**: Sistema de autenticación con validación de edad (mayores de 18)
+- **Menú Principal**: Gestión de perfil, datos adicionales y ajustes
+- **Chat General**: Acceso mediante escaneo QR en la discoteca, requiere geolocalización
+- **Chats Privados**: Conversaciones 1-a-1 que se eliminan automáticamente al salir del local
+- **Sistema de Seguridad**: Logs temporales para cumplimiento legal y política de retención de 15 días
 
+## 🏗️ Arquitectura Tecnológica
+
+### Frontend
+- **React Native**: Framework principal para la aplicación móvil
+- **Expo Router**: Sistema de navegación basado en archivos
+- **TypeScript**: Tipado estático para mayor robustez
+- **Expo**: Plataforma de desarrollo y despliegue
+
+### Backend
+- **Spring Boot**: Framework Java para servidor REST API
+- **Base de Datos**: Neon (PostgreSQL en la nube)
+- **Sistema de Logs**: Auditoría y retención automatizada
+
+## 🔄 Flujo de la Aplicación
+
+1. **Inicio**: Login/Register con validación de datos
+2. **Interfaz Principal**: Navegación por tabs (Inicio, Chat General, Chats Privados)
+3. **En Discoteca**: Escanear QR → Acceso a chats → Geolocalización activa
+4. **Salida**: Limpieza automática de chats privados
+
+## 🔐 Características de Seguridad
+
+- Sistema de auditoría para acceso autorizado
+- Logs temporales con política de retención de 15 días
+- Conversaciones eliminadas automáticamente
+- Cumplimiento normativo para acceso policial
+
+## 🚀 Comenzar
+
+1. Instalar dependencias
    ```bash
    npm install
    ```
 
-2. Start the app
-
+2. Iniciar aplicación
    ```bash
    npx expo start
    ```
 
-In the output, you'll find options to open the app in a
+## 📋 Requisitos del Sistema
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- React Native 6.x+
+- Expo 49+
+- Node.js 18+
+- Spring Boot 3.x+ (Backend)
+- PostgreSQL (Neon)

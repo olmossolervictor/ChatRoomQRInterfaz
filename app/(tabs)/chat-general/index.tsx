@@ -44,29 +44,7 @@ export default function ChatGeneralScreen() {
         </View>
         
         <View style={styles.featuresContainer}>
-          <View style={styles.featureItem}>
-            <View style={[styles.featureIcon, { backgroundColor: '#E8F4FD' }]}>
-              <Ionicons name="shield-checkmark" size={24} color="#007AFF" />
-            </View>
-            <Text style={styles.featureTitle}>Seguro</Text>
-            <Text style={styles.featureText}>Chats moderados</Text>
-          </View>
           
-          <View style={styles.featureItem}>
-            <View style={[styles.featureIcon, { backgroundColor: '#FFF4E6' }]}>
-              <Ionicons name="flash" size={24} color="#FF9500" />
-            </View>
-            <Text style={styles.featureTitle}>Rápido</Text>
-            <Text style={styles.featureText}>Conexión instantánea</Text>
-          </View>
-          
-          <View style={styles.featureItem}>
-            <View style={[styles.featureIcon, { backgroundColor: '#F0FFF4' }]}>
-              <Ionicons name="happy" size={24} color="#34C759" />
-            </View>
-            <Text style={styles.featureTitle}>Divertido</Text>
-            <Text style={styles.featureText}>Conoce gente nueva</Text>
-          </View>
         </View>
       </View>
     </View>

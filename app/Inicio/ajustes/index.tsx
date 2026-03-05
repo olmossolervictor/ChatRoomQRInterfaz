@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -6,15 +6,275 @@ import {
   ScrollView,
   Pressable,
   Alert,
-  Switch
+  Switch,
+  Linking,
+  AppState
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { StorageHelper } from '@/utils/storage';
+import * as ImagePicker from 'expo-image-picker';
 
 export default function AjustesScreen() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [cameraPermission, setCameraPermission] = useState(false);
+  const [notificationPermission, setNotificationPermission] = useState(false);
+  const [locationPermission, setLocationPermission] = useState(false);
+
+  // Verificar el estado actual de los permisos al cargar la pantalla y al volver de ajustes
+  useEffect(() => {
+    checkCameraPermission();
+    checkNotificationPermission();
+    checkLocationPermission();
+    
+    // Escuchar cuando la aplicación vuelve a primer plano (compatible con iOS y Android)
+    const handleAppStateChange = (nextAppState: string) => {
+      if (nextAppState === 'active') {
+        // Cuando volvemos a la app, verificar si los permisos cambiaron
+        setTimeout(() => {
+          checkCameraPermission();
+          checkNotificationPermission();
+          checkLocationPermission();
+        }, 500); // Pequeño delay para asegurar que los permisos se actualicen
+      }
+    };
+
+    const subscription = AppState.addEventListener('change', handleAppStateChange);
+
+    return () => subscription?.remove();
+  }, []);
+
+  const checkCameraPermission = async () => {
+    try {
+      const { status } = await ImagePicker.getCameraPermissionsAsync();
+      // Establecer el estado real del permiso
+      setCameraPermission(status === 'granted');
+    } catch (error) {
+      console.error('Error al verificar permiso de cámara:', error);
+      setCameraPermission(false);
+    }
+  };
+
+  const checkLocationPermission = async () => {
+    try {
+      // Por ahora la geolocalización no está implementada
+      setLocationPermission(false);
+    } catch (error) {
+      console.error('Error al verificar permiso de ubicación:', error);
+      setLocationPermission(false);
+    }
+  };
+
+  const checkNotificationPermission = async () => {
+    try {
+      // Como expo-notifications no funciona en SDK 54+, usamos un sistema simulado
+      // que imita el comportamiento del sistema operativo
+      const savedPermission = await AsyncStorage.getItem('notificationPermission');
+      setNotificationPermission(savedPermission === 'true');
+    } catch (error) {
+      console.error('Error al verificar permiso de notificaciones:', error);
+      setNotificationPermission(false);
+    }
+  };
+
+  const requestNotificationPermission = async () => {
+    try {
+      // Como expo-notifications no funciona en SDK 54+, simulamos el diálogo del sistema
+      // que imita el comportamiento de iOS y Android
+      
+      Alert.alert(
+        'Permitir Notificaciones',
+        'ChatRoomQR quiere enviarte notificaciones. ¿Permites que ChatRoomQR te envíe notificaciones?',
+        [
+          {
+            text: 'No permitir',
+            style: 'cancel',
+            onPress: async () => {
+              setNotificationPermission(false);
+              await AsyncStorage.setItem('notificationPermission', 'false');
+            }
+          },
+          {
+            text: 'Permitir',
+            onPress: async () => {
+              setNotificationPermission(true);
+              await AsyncStorage.setItem('notificationPermission', 'true');
+              Alert.alert(
+                'Notificaciones Activadas',
+                'Ahora recibirás notificaciones de ChatRoomQR. Puedes desactivarlas en cualquier momento desde los ajustes de tu teléfono.',
+                [{ text: 'OK' }]
+              );
+            }
+          }
+        ]
+      );
+    } catch (error) {
+      console.error('Error al solicitar permiso de notificaciones:', error);
+      Alert.alert(
+        'Error',
+        'No se pudo solicitar el permiso de notificaciones. Inténtalo de nuevo.',
+        [{ text: 'OK' }]
+      );
+    }
+  };
+
+  const handleNotificationPermissionToggle = async (newValue: boolean) => {
+    if (newValue) {
+      // Siempre solicitar permiso directamente (compatible con iOS y Android)
+      await requestNotificationPermission();
+    } else {
+      // Si se desactiva, enviar a ajustes del teléfono
+      Alert.alert(
+        'Desactivar Permiso de Notificaciones',
+        'Para desactivar el permiso de notificaciones, serás redirigido a los ajustes del sistema. Busca ChatRoomQR > Permisos y desactiva Notificaciones manualmente.',
+        [
+          {
+            text: 'Cancelar',
+            style: 'cancel',
+            onPress: () => {
+              // Mantener el switch activado si cancela
+              setNotificationPermission(true);
+            }
+          },
+          {
+            text: 'Ir a Ajustes',
+            onPress: async () => {
+              try {
+                // Abrir ajustes de la aplicación (compatible con iOS y Android)
+                await Linking.openSettings();
+                // Marcar como desactivado inmediatamente y guardar en storage
+                setNotificationPermission(false);
+                await AsyncStorage.setItem('notificationPermission', 'false');
+              } catch (error) {
+                Alert.alert(
+                  'Error',
+                  'No se pudo abrir los ajustes. Por favor, ve manualmente a Ajustes > Aplicaciones > ChatRoomQR > Permisos.',
+                  [{ text: 'OK' }]
+                );
+                setNotificationPermission(true);
+              }
+            }
+          }
+        ]
+      );
+    }
+  };
+
+  const handleLocationPermissionToggle = async (newValue: boolean) => {
+    if (newValue) {
+      // Por ahora solo mostrar mensaje de que no está implementado
+      Alert.alert(
+        'Próximamente',
+        'La funcionalidad de geolocalización estará disponible en futuras actualizaciones.',
+        [{ text: 'OK' }]
+      );
+      // Mantener el switch desactivado
+      setLocationPermission(false);
+    } else {
+      // Si se desactiva, enviar a ajustes del teléfono
+      Alert.alert(
+        'Desactivar Permiso de Ubicación',
+        'Para desactivar el permiso de ubicación, serás redirigido a los ajustes del sistema. Busca ChatRoomQR > Permisos y desactiva Ubicación manualmente.',
+        [
+          {
+            text: 'Cancelar',
+            style: 'cancel',
+            onPress: () => {
+              // Mantener el switch activado si cancela
+              setLocationPermission(true);
+            }
+          },
+          {
+            text: 'Ir a Ajustes',
+            onPress: async () => {
+              try {
+                // Abrir ajustes de la aplicación
+                await Linking.openSettings();
+                setLocationPermission(false);
+              } catch (error) {
+                Alert.alert(
+                  'Error',
+                  'No se pudo abrir los ajustes. Por favor, ve manualmente a Ajustes > Aplicaciones > ChatRoomQR > Permisos.',
+                  [{ text: 'OK' }]
+                );
+                setLocationPermission(true);
+              }
+            }
+          }
+        ]
+      );
+    }
+  };
+
+  const requestCameraPermission = async () => {
+    try {
+      // Siempre solicitar permiso directamente (sin verificar primero)
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+      
+      if (status === 'granted') {
+        setCameraPermission(true);
+        Alert.alert(
+          'Permiso Concedido',
+          'Ahora puedes usar la cámara para escanear códigos QR.',
+          [{ text: 'OK' }]
+        );
+      } else {
+        setCameraPermission(false);
+        // No mostrar mensaje de permiso denegado, simplemente mantener el switch desactivado
+        // El usuario puede intentar activarlo de nuevo si cambia de opinión
+      }
+    } catch (error) {
+      console.error('Error al solicitar permiso de cámara:', error);
+      Alert.alert(
+        'Error',
+        'No se pudo solicitar el permiso de la cámara. Inténtalo de nuevo.',
+        [{ text: 'OK' }]
+      );
+    }
+  };
+
+  const handleCameraPermissionToggle = async (newValue: boolean) => {
+    if (newValue) {
+      // Siempre solicitar permiso directamente (compatible con iOS y Android)
+      await requestCameraPermission();
+    } else {
+      // Si se desactiva, enviar a ajustes del teléfono
+      Alert.alert(
+        'Desactivar Permiso de Cámara',
+        'Para desactivar el permiso de la cámara, serás redirigido a los ajustes del sistema. Busca ChatRoomQR > Permisos y desactiva Cámara manualmente.',
+        [
+          {
+            text: 'Cancelar',
+            style: 'cancel',
+            onPress: () => {
+              // Mantener el switch activado si cancela
+              setCameraPermission(true);
+            }
+          },
+          {
+            text: 'Ir a Ajustes',
+            onPress: async () => {
+              try {
+                // Abrir ajustes de la aplicación (compatible con iOS y Android)
+                await Linking.openSettings();
+                // Marcar como desactivado inmediatamente
+                setCameraPermission(false);
+              } catch (error) {
+                Alert.alert(
+                  'Error',
+                  'No se pudo abrir los ajustes. Por favor, ve manualmente a Ajustes > Aplicaciones > ChatRoomQR > Permisos.',
+                  [{ text: 'OK' }]
+                );
+                setCameraPermission(true);
+              }
+            }
+          }
+        ]
+      );
+    }
+  };
 
   const handleLogout = () => {
     Alert.alert(
@@ -79,7 +339,10 @@ export default function AjustesScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Pressable style={styles.backButton} onPress={() => router.replace('/(tabs)/chat-general' as any)}>
+        <Pressable style={styles.backButton} onPress={() => {
+          router.push('/(tabs)' as any);
+          setTimeout(() => router.replace('/(tabs)' as any), 50);
+        }}>
           <Ionicons name="arrow-back" size={24} color="white" />
         </Pressable>
         <Text style={styles.headerTitle}>Ajustes</Text>
@@ -96,7 +359,32 @@ export default function AjustesScreen() {
               <Ionicons name="notifications" size={20} color="#007AFF" />
             </View>
             <Text style={styles.menuText}>Notificaciones</Text>
-            <Switch value={true} onValueChange={() => {}} />
+            <Switch 
+              value={notificationPermission} 
+              onValueChange={handleNotificationPermissionToggle} 
+            />
+          </View>
+
+          <View style={styles.menuItem}>
+            <View style={styles.menuIcon}>
+              <Ionicons name="camera" size={20} color="#007AFF" />
+            </View>
+            <Text style={styles.menuText}>Permisos de la Cámara</Text>
+            <Switch 
+              value={cameraPermission} 
+              onValueChange={handleCameraPermissionToggle} 
+            />
+          </View>
+
+          <View style={styles.menuItem}>
+            <View style={styles.menuIcon}>
+              <Ionicons name="location" size={20} color="#007AFF" />
+            </View>
+            <Text style={styles.menuText}>Localización</Text>
+            <Switch 
+              value={locationPermission} 
+              onValueChange={handleLocationPermissionToggle} 
+            />
           </View>
 
           <View style={styles.menuItem}>

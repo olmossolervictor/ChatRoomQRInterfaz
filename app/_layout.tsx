@@ -24,7 +24,7 @@ const RootLayout = () => {
         <Stack.Screen name="/(tabs)" />
         <Stack.Screen name="auth/login" />
         <Stack.Screen name="auth/register" />
-        <Stack.Screen name="perfil/modificar-perfil" />
+        <Stack.Screen name="perfil" />
         <Stack.Screen name="ajustes" />
       </Stack>
     </GestureHandlerRootView>

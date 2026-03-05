@@ -1,0 +1,9 @@
+export default function DefaultAvatar() {
+  return (
+    <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="80" height="80" rx="40" fill="#F5F5F5"/>
+      <circle cx="40" cy="28" r="12" fill="#D0D0D0"/>
+      <path d="M20 68C20 55.5 30 48 40 48C50 48 60 55.5 60 68V80H20V68Z" fill="#D0D0D0"/>
+    </svg>
+  );
+}

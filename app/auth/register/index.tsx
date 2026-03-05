@@ -28,13 +28,13 @@ export default function RegisterScreen() {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const router = useRouter();
   const [showMonthPicker, setShowMonthPicker] = useState(false);
   const [showYearPicker, setShowYearPicker] = useState(false);
   const [currentMonth, setCurrentMonth] = useState(formData.fechaNacimiento.getMonth());
   const [currentYear, setCurrentYear] = useState(formData.fechaNacimiento.getFullYear());
   const [calendarMonth, setCalendarMonth] = useState(formData.fechaNacimiento.getMonth());
   const [calendarYear, setCalendarYear] = useState(formData.fechaNacimiento.getFullYear());
-  const router = useRouter();
 
   // Calcular la fecha máxima permitida (hace 18 años desde hoy)
   const today = new Date();
@@ -112,7 +112,7 @@ export default function RegisterScreen() {
         contraseña: formData.contraseña,
         fechaNacimiento: fechaNacimientoString,
         descripcion: '',
-        avatar: 'https://via.placeholder.com/150'
+        avatar: 'default'
       });
 
       // Guardar como usuario actual (sesión)
@@ -124,7 +124,7 @@ export default function RegisterScreen() {
         'Tu cuenta ha sido creada correctamente. Ahora puedes iniciar sesión.',
         [
           {
-            text: 'Iniciar Sesión',
+            text: 'OK',
             onPress: () => router.replace('/auth/login' as any)
           }
         ]
@@ -179,7 +179,11 @@ export default function RegisterScreen() {
       if (lastValidDate > maxDate) {
         setCurrentMonth(maxDate.getMonth());
         setCalendarMonth(maxDate.getMonth());
-        Alert.alert('Error', 'Debes ser mayor de 18 años para registrarte');
+        showAlert({
+          title: 'Error',
+          message: 'Debes ser mayor de 18 años para registrarte',
+          type: 'error'
+        });
       } else {
         updateFormData('fechaNacimiento', lastValidDate);
       }
@@ -233,7 +237,7 @@ export default function RegisterScreen() {
                   style={styles.input}
                   value={formData.nombre}
                   onChangeText={(value) => updateFormData('nombre', value)}
-                  placeholder="Tu nombre"
+                  placeholder="Nombre"
                   autoCapitalize="words"
                 />
               </View>
@@ -243,7 +247,7 @@ export default function RegisterScreen() {
                   style={styles.input}
                   value={formData.apellidos}
                   onChangeText={(value) => updateFormData('apellidos', value)}
-                  placeholder="Tus apellidos"
+                  placeholder="Apellidos"
                   autoCapitalize="words"
                 />
               </View>

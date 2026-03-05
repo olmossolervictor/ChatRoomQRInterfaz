@@ -1,21 +1,25 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  ScrollView, 
-  TextInput, 
-  Pressable, 
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TextInput,
+  Pressable,
   Alert,
   Image,
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
-  Keyboard
+  Keyboard,
+  Modal
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { StorageHelper, User } from '@/utils/storage';
+import * as ImagePicker from 'expo-image-picker';
+import { Camera } from 'expo-camera';
+import DefaultAvatar from '../../../components/DefaultAvatar';
 
 export default function ModificarPerfilScreen() {
   const router = useRouter();
@@ -29,7 +33,7 @@ export default function ModificarPerfilScreen() {
     apellidos: '',
     username: '',
     descripcion: '',
-    avatar: 'https://via.placeholder.com/150'
+    avatar: 'default'
   });
 
   // Cargar datos del usuario actual al montar el componente
@@ -67,7 +71,7 @@ export default function ModificarPerfilScreen() {
           apellidos: user.apellidos,
           username: user.username,
           descripcion: user.descripcion || '',
-          avatar: user.avatar || 'https://via.placeholder.com/150'
+          avatar: user.avatar || 'default'
         });
       } else {
         Alert.alert('Error', 'No hay sesión activa');
@@ -130,21 +134,81 @@ export default function ModificarPerfilScreen() {
     }
   };
 
+  // Función para solicitar permisos y abrir la cámara
+  const openCamera = async () => {
+    try {
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permiso denegado', 'Necesitamos permiso para acceder a tu cámara');
+        return;
+      }
+
+      const result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.5,
+      });
+
+      if (!result.canceled && result.assets[0]) {
+        setFormData(prev => ({ ...prev, avatar: result.assets[0].uri }));
+      }
+    } catch (error) {
+      console.error('Error al abrir la cámara:', error);
+      Alert.alert('Error', 'No se pudo acceder a la cámara');
+    }
+  };
+
+  // Función para solicitar permisos y abrir la galería
+  const openGallery = async () => {
+    try {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permiso denegado', 'Necesitamos permiso para acceder a tu galería');
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.5,
+      });
+
+      if (!result.canceled && result.assets[0]) {
+        setFormData(prev => ({ ...prev, avatar: result.assets[0].uri }));
+      }
+    } catch (error) {
+      console.error('Error al abrir la galería:', error);
+      Alert.alert('Error', 'No se pudo acceder a la galería');
+    }
+  };
+
   const handleChangeAvatar = () => {
+    const hasCustomAvatar = formData.avatar !== 'default';
+    
+    const options: any[] = [
+      { text: 'Cancelar', style: 'cancel' },
+      { text: 'Cámara', onPress: openCamera },
+      { text: 'Galería', onPress: openGallery }
+    ];
+
+    // Añadir opción de quitar imagen si no es la imagen por defecto
+    if (hasCustomAvatar) {
+      options.splice(1, 0, { 
+        text: 'Quitar imagen', 
+        style: 'destructive',
+        onPress: () => {
+          setFormData(prev => ({ ...prev, avatar: 'default' }));
+          Alert.alert('Imagen eliminada', 'Tu imagen de perfil ha sido eliminada');
+        }
+      });
+    }
+
     Alert.alert(
       'Cambiar Avatar',
       '¿Cómo quieres cambiar tu avatar?',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        { text: 'Cámara', onPress: () => {
-          // Aquí iría la lógica para abrir la cámara
-          console.log('Abrir cámara');
-        }},
-        { text: 'Galería', onPress: () => {
-          // Aquí iría la lógica para abrir la galería
-          console.log('Abrir galería');
-        }}
-      ]
+      options
     );
   };
 
@@ -171,7 +235,11 @@ export default function ModificarPerfilScreen() {
         >
         <View style={styles.avatarSection}>
           <View style={styles.avatarContainer}>
-            <Image source={{ uri: formData.avatar }} style={styles.avatar} />
+            {formData.avatar && formData.avatar !== 'default' ? (
+              <Image source={{ uri: formData.avatar }} style={styles.avatar} />
+            ) : (
+              <DefaultAvatar size={120} />
+            )}
             <TouchableOpacity style={styles.editAvatarButton} onPress={handleChangeAvatar}>
               <Ionicons name="camera" size={20} color="white" />
             </TouchableOpacity>
@@ -315,14 +383,13 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 0,
     right: 0,
-    backgroundColor: '#34C759',
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    backgroundColor: '#000000',
+    width: 30,
+    height: 30,
+    borderRadius: 15,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 3,
-    borderColor: 'white',
+    borderWidth: 2,
   },
   avatarText: {
     fontSize: 14,
