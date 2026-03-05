@@ -45,10 +45,10 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Inicio',
+          title: 'Perfil',
           tabBarIcon: ({ color, size, focused }) => (
             <View style={focused ? styles.tabIconFocused : styles.tabIcon}>
-              <Ionicons name="home" size={24} color={focused ? '#ffffff' : color} />
+              <Ionicons name="person-outline" size={24} color={focused ? '#ffffff' : color} />
             </View>
           ),
           headerShown: false,
@@ -97,8 +97,8 @@ const styles = StyleSheet.create({
     elevation: 1,
   },
   tabIconFocused: {
-    width: 50,
-    height: 50,
+    width: 40,
+    height: 40,
     borderRadius: 25,
     backgroundColor: '#007AFF',
     justifyContent: 'center',

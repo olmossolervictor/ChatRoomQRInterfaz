@@ -11,47 +11,64 @@ ChatRoom QR es una aplicación móvil React Native con Expo que permite escanear
 
 ### Stack Tecnológico
 - **Framework**: React Native con Expo SDK 54
-- **Navegación**: Expo Router con Stack Navigator
-- **Escaneo QR**: Expo Camera (configurado pero no implementado)
-- **Estilos**: StyleSheet nativo de React Native + TailwindCSS (NativeWind)
-- **TypeScript**: Para tipado estático
-- **Estado Actual**: Estructura básica con pantallas placeholder
+- **Navegación**: Expo Router con Stack y Tab Navigator
+- **Almacenamiento**: AsyncStorage con StorageHelper centralizado
+- **Estilos**: StyleSheet nativo de React Native
+- **TypeScript**: Tipado estricto con interfaces definidas
+- **Estado Actual**: Sistema completo de autenticación y gestión de perfiles
 
 ### Estructura de Archivos Actual
 ```
 app/
-├── _layout.tsx                    # Layout principal (redirect a tabs)
-├── index.tsx                      # Redirect a /home (antiguo)
-├── (tabs)/                        # Navegación con tabs
-│   ├── _layout.tsx               # Tab Navigator con 3 tabs principales
+├── _layout.tsx                    # Layout principal (verifica sesión)
+├── index.tsx                      # Redirect automático según sesión
+├── auth/                          # Autenticación
+│   ├── _layout.tsx               # Stack Navigator para auth
+│   ├── login/
+│   │   └── index.tsx             # Login con validación y AsyncStorage
+│   └── register/
+│       └── index.tsx             # Registro con validación completa
+├── (tabs)/                        # Navegación con tabs principales
+│   ├── _layout.tsx               # Tab Navigator con 3 tabs
+│   ├── index.tsx                 # Tab Inicio (menú principal)
 │   ├── chat-general/
 │   │   └── index.tsx             # Chat general del nightclub
-│   ├── scanner/
-│   │   └── index.tsx             # Escáner QR funcional
 │   └── chats-privados/
 │       └── index.tsx             # Lista de chats privados
-├── home/                          # Antiguo menú (obsoleto)
-│   └── index.tsx
-├── chat/                          # Antiguo chat placeholder (obsoleto)
-│   └── index.tsx
-├── qr/                            # Antiguo QR placeholder (obsoleto)
-│   └── index.tsx
-└── perfil/                        # Antiguo perfil placeholder (obsoleto)
-    └── index.tsx
+├── Inicio/                        # Menú principal (fuera de tabs)
+│   ├── index.tsx                 # Pantalla de inicio principal
+│   ├── perfil/
+│   │   └── index.tsx             # Modificar perfil con teclado inteligente
+│   └── ajustes/
+│       └── index.tsx             # Configuración y cerrar sesión
+└── utils/
+    └── storage.ts                # StorageHelper para AsyncStorage
 ```
 
 ## Funcionalidades Clave
 
-### 1. Navegación con Tabs
-- Tab Navigator con 3 tabs principales: Chat General, Escáner QR, Chats Privados
-- Navegación inferior con iconos de Ionicons
-- Redirect automático desde `/index` a `/(tabs)/chat-general`
-- Diseño moderno con sombras y colores consistentes
+### 1. Sistema de Autenticación
+- **Login**: Validación de usuario con AsyncStorage y navegación
+- **Registro**: Formulario completo con validación y guardado local
+- **StorageHelper**: Clase centralizada para manejo de AsyncStorage
+- **Sesión persistente**: Mantiene sesión activa entre usos
 
-### 2. Pantallas Implementadas
-- **Chat General**: Interfaz de chat con mensajes, entrada de texto y diseño moderno
-- **Escáner QR**: Funcionalidad completa con cámara, permisos, validación de QR y overlay de escaneo
-- **Chats Privados**: Lista de conversaciones con búsqueda, avatares y badges de no leídos
+### 2. Navegación Principal
+- **3 Tabs principales**: Inicio, Chat General, Chats Privados
+- **Tab Inicio**: Menú principal con opciones de perfil y ajustes
+- **Diseño consistente**: Iconos, colores y sombras unificadas
+- **Navegación fluida**: `router.replace()` para compatibilidad multiplataforma
+
+### 3. Gestión de Perfil
+- **Modificar Perfil**: Edición de username y descripción
+- **Campos de solo lectura**: Nombre y apellidos (estilo grisáceo)
+- **Teclado inteligente**: Scroll automático y espacio dinámico
+- **StorageHelper**: Actualización y validación de datos
+
+### 4. Sistema de Ajustes
+- **Configuración**: Preferencias y opciones de privacidad
+- **Cerrar sesión**: Limpieza de sesión y redirect a login
+- **Diseño modular**: Secciones organizadas y accesibles
 
 ## Configuraciones Importantes
 
@@ -63,42 +80,51 @@ app/
 - Soporte para iOS, Android y Web
 
 ### Dependencias Clave
-- `expo-camera`: Configurado para funcionalidad de cámara y escaneo QR
-- `expo-router`: Para navegación con Stack Navigator
-- `expo-location`: Para servicios de ubicación (no implementado)
-- `nativewind`: TailwindCSS para React Native
-- `@react-navigation/*`: Paquetes de navegación adicionales
-- `@gorhom/bottom-sheet`: Para bottom sheets (no implementado)
-- `expo-secure-store`: Para almacenamiento seguro (no implementado)
+- `@react-native-async-storage/async-storage`: Almacenamiento local persistente
+- `expo-router`: Navegación con Stack y Tab Navigator
+- `@expo/vector-icons`: Iconos para la interfaz
+- `react-native`: Componentes nativos y manejo de teclado
+- `typescript`: Tipado estático y validación
+- `expo-secure-store`: Almacenamiento seguro (futuro)
 
 ## Flujo Actual de la Aplicación
 
-1. **Inicio (`/index`)**: Redirect automático a `/(tabs)/chat-general`
-2. **Navegación con Tabs**: 
-   - **Tab 1 - Chat General**: Chat del nightclub actual con mensajes de ejemplo
-   - **Tab 2 - Escáner QR**: Cámara funcional con overlay y validación de códigos QR
-   - **Tab 3 - Chats Privados**: Lista de conversaciones privadas con búsqueda y badges
-3. **Navegación**: Tabs inferiores con iconos y colores consistentes
+1. **Inicio (`/index`)**: Verifica sesión activa con StorageHelper
+   - **Con sesión**: Redirect a `/(tabs)/index` (Inicio)
+   - **Sin sesión**: Redirect a `auth/login`
+
+2. **Autenticación (`/auth`)**: Stack Navigator para login y registro
+   - **Login**: Validación de credenciales y creación de sesión
+   - **Registro**: Formulario completo con validación y guardado local
+
+3. **Navegación Principal (`/(tabs)`)**: 3 tabs principales
+   - **Tab 1 - Inicio**: Menú principal con perfil y ajustes
+   - **Tab 2 - Chat General**: Chat del nightclub (placeholder)
+   - **Tab 3 - Chats Privados**: Lista de conversaciones (placeholder)
+
+4. **Gestión de Perfil**: Acceso desde tab Inicio
+   - **Modificar Perfil**: Edición con teclado inteligente
+   - **Ajustes**: Configuración y cerrar sesión
 
 ## Estado de Implementación
 
-### ✅ Implementado
-- Navegación con tabs funcional
-- Chat General con interfaz completa y mensajes de ejemplo
-- Escáner QR totalmente funcional con cámara y validación
-- Chats Privados con lista, búsqueda y badges
-- Diseño moderno y consistente
-- Manejo de permisos de cámara
-- Validación de formatos QR
+### ✅ Completamente Implementado
+- **Sistema de Autenticación**: Login, registro y gestión de sesión con StorageHelper
+- **Navegación completa**: Stack Navigator para auth y Tab Navigator para principal
+- **Gestión de Perfil**: Modificar perfil con teclado inteligente y campos de solo lectura
+- **Sistema de Ajustes**: Configuración, cerrar sesión y eliminar cuenta
+- **StorageHelper centralizado**: Manejo completo de AsyncStorage con validación
+- **Diseño consistente**: Márgenes, iconos y colores unificados
+- **Compatibilidad multiplataforma**: Uso de `router.replace()` y manejo de teclado
 
-### ⏳ Por Implementar
-- Conexión con backend real para chats
-- Verificación de ubicación real con GPS
-- Sistema de autenticación de usuarios
-- Perfiles de usuario funcionales
-- Almacenamiento persistente de mensajes
-- Notificaciones push
-- Integración con APIs de nightclubs
+### ⏳ Por Implementar (Futuro)
+- **Chat General**: Conexión real con backend y WebSocket
+- **Chats Privados**: Sistema de conversaciones 1-a-1 funcional
+- **Escáner QR**: Integración con cámara y validación de códigos
+- **Verificación de ubicación**: GPS y geolocalización para nightclubs
+- **Notificaciones push**: Mensajes en tiempo real
+- **Integración con APIs**: Conexión con sistemas de nightclubs
+- **Sistema de amigos**: Agregar usuarios y notificaciones de presencia
 
 ## Formato de Códigos QR Esperado (Futuro)
 ```json
@@ -112,7 +138,13 @@ app/
 }
 ```
 
-## Reglas de Desarrollo
+## Reglas de Desarrollo - COMPATIBILIDAD MULTIPLATAFORMA
+
+### 🚨 REGLA ORO (A partir de ahora)
+**TODA funcionalidad que se implemente debe ser 100% compatible con iOS y Android.**
+- Si algo no funciona igual en ambas plataformas, usar soluciones alternativas
+- Probar siempre en ambos sistemas antes de considerar algo "completado"
+- Documentar cualquier diferencia y proporcionar soluciones específicas si es necesario
 
 ### Convenciones de Código
 - Usar TypeScript con tipado estricto
@@ -121,12 +153,24 @@ app/
 - Estilos separados con StyleSheet.create (actualmente)
 - TailwindCSS disponible mediante NativeWind
 
-### Buenas Prácticas
-- Mantener estructura de archivos organizada
-- Usar SafeAreaView para manejo de áreas seguras
-- Implementar navegación tipada cuando sea posible
-- Manejo proper de permisos (cuando se implementen funcionalidades)
-- Validación de datos antes de procesar
+### Buenas Prácticas Multiplataforma
+- **Navegación**: Usar `router.replace()` en lugar de `router.back()` para compatibilidad Android
+- **Almacenamiento**: AsyncStorage funciona en ambas plataformas pero requiere configuración específica
+- **Componentes**: Verificar que cada componente funcione igual en iOS y Android
+- **Permisos**: Manejar permisos de manera diferente según plataforma si es necesario
+- **TextInput**: Propiedades específicas pueden comportarse diferente, probar en ambas plataformas
+
+### Problemas Conocidos y Soluciones
+1. **router.back()**: No funciona bien en Android → Usar `router.replace('/ruta')`
+2. **AsyncStorage**: Requiere instalación y configuración específica para Expo
+3. **Componentes nativos**: Siempre verificar compatibilidad en ambas plataformas
+4. **Permisos**: iOS y Android tienen flujos diferentes para solicitar permisos
+
+### Testing Multiplataforma
+- Probar cada funcionalidad en iOS y Android
+- Verificar navegación entre pantallas en ambas plataformas
+- Test con diferentes tamaños de pantalla en ambos sistemas
+- Validar que el almacenamiento persista en ambas plataformas
 
 ### Consideraciones de Diseño
 - Paleta de colores actual: `#f5f5f5` (fondo), `#007AFF` (header), blanco (tarjetas)

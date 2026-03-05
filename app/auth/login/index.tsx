@@ -8,9 +8,11 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
-  ScrollView
+  ScrollView,
+  Keyboard
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import { StorageHelper } from '../../../utils/storage';
 
 export default function LoginScreen() {
   const [username, setUsername] = useState('');
@@ -19,6 +21,9 @@ export default function LoginScreen() {
   const router = useRouter();
 
   const handleLogin = async () => {
+    // Cerrar teclado antes de procesar
+    Keyboard.dismiss();
+    
     if (!username.trim() || !password.trim()) {
       Alert.alert('Error', 'Por favor completa todos los campos');
       return;
@@ -27,17 +32,35 @@ export default function LoginScreen() {
     setIsLoading(true);
     
     try {
-      // Simulamos una llamada al backend
-      setTimeout(() => {
+      // Validar credenciales con StorageHelper
+      const user = await StorageHelper.validateLogin(username.trim(), password.trim());
+      
+      if (user) {
+        // Guardar sesión actual
+        await StorageHelper.setCurrentUser(user);
+        
         setIsLoading(false);
-        // Login exitoso - navegamos a los tabs
-        console.log("-----------------Ha entrado-------------")
-        router.replace('/(tabs)');
-      }, 1000);
+        Alert.alert(
+          '✅ Bienvenido', 
+          `¡Hola ${user.nombre}! Has iniciado sesión correctamente.`,
+          [
+            {
+              text: 'Continuar',
+              onPress: () => router.replace('/(tabs)/chat-general' as any)
+            }
+          ]
+        );
+      } else {
+        setIsLoading(false);
+        Alert.alert(
+          'Error de Inicio de Sesión', 
+          'El usuario o contraseña son incorrectos. Por favor, verifica tus datos e intenta de nuevo.'
+        );
+      }
       
     } catch (error) {
       setIsLoading(false);
-      Alert.alert('Error', 'No se pudo iniciar sesión');
+      Alert.alert('Error', 'No se pudo iniciar sesión. Intenta de nuevo más tarde.');
     }
   };
 
@@ -45,12 +68,33 @@ export default function LoginScreen() {
     router.push('/auth/register');
   };
 
+  // Función de diagnóstico para desarrollo
+  const diagnoseStorage = async () => {
+    try {
+      const diagnosis = await StorageHelper.diagnoseStorage();
+      console.log('Diagnóstico Storage:', diagnosis);
+      Alert.alert(
+        'Diagnóstico de Almacenamiento',
+        `Disponible: ${diagnosis.available ? 'Sí' : 'No'}\nUsuarios: ${diagnosis.usersCount}\nSesión activa: ${diagnosis.hasCurrentUser ? 'Sí' : 'No'}\n${diagnosis.error || ''}`,
+        [{ text: 'OK' }]
+      );
+    } catch (error) {
+      console.error('Error en diagnóstico:', error);
+      Alert.alert('Error', 'No se pudo realizar el diagnóstico');
+    }
+  };
+
   return (
     <KeyboardAvoidingView 
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
     >
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
+      <ScrollView 
+        contentContainerStyle={styles.scrollContainer}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.content}>
           <Text style={styles.title}>ChatRoomQR</Text>
           <Text style={styles.subtitle}>Inicia sesión para continuar</Text>
@@ -65,6 +109,15 @@ export default function LoginScreen() {
                 placeholder="Ingresa tu usuario"
                 autoCapitalize="none"
                 autoCorrect={false}
+                autoComplete="username"
+                textContentType="username"
+                importantForAutofill="yes"
+                returnKeyType="next"
+                blurOnSubmit={false}
+                onSubmitEditing={() => {
+                  // Mover foco al siguiente campo
+                  // passwordInputRef.current?.focus();
+                }}
               />
             </View>
 
@@ -78,6 +131,11 @@ export default function LoginScreen() {
                 secureTextEntry
                 autoCapitalize="none"
                 autoCorrect={false}
+                autoComplete="password"
+                textContentType="password"
+                importantForAutofill="yes"
+                returnKeyType="done"
+                onSubmitEditing={handleLogin}
               />
             </View>
 
@@ -98,6 +156,11 @@ export default function LoginScreen() {
               <Text style={styles.link}>Regístrate</Text>
             </TouchableOpacity>
           </View>
+
+          {/* Botón de diagnóstico para desarrollo */}
+          <TouchableOpacity style={styles.diagnosticButton} onPress={diagnoseStorage}>
+            <Text style={styles.diagnosticButtonText}>🔧 Diagnóstico</Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -197,6 +260,21 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#007AFF',
     fontWeight: '600',
+    fontFamily: 'WorkSans-Medium',
+  },
+  diagnosticButton: {
+    backgroundColor: '#f0f0f0',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 20,
+    borderWidth: 1,
+    borderColor: '#ddd',
+  },
+  diagnosticButtonText: {
+    fontSize: 12,
+    color: '#666',
     fontFamily: 'WorkSans-Medium',
   },
 });

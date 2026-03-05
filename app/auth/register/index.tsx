@@ -14,6 +14,7 @@ import {
 import { useRouter } from 'expo-router';
 import { Calendar } from 'react-native-calendars';
 import { Picker } from '@react-native-picker/picker';
+import { StorageHelper, User } from '../../../utils/storage';
 
 export default function RegisterScreen() {
   const [formData, setFormData] = useState({
@@ -95,27 +96,43 @@ export default function RegisterScreen() {
     setIsLoading(true);
     
     try {
-      // Aquí irá la lógica de registro con el backend
-      console.log('Register attempt:', formData);
-      
-      // Simulamos una llamada al backend
-      setTimeout(() => {
-        setIsLoading(false);
-        Alert.alert(
-          '✅ Registro Exitoso', 
-          'Tu cuenta ha sido creada correctamente. Ahora puedes iniciar sesión.',
-          [
-            {
-              text: 'Iniciar Sesión',
-              onPress: () => router.replace('/auth/login')
-            }
-          ]
-        );
-      }, 1000);
-      
-    } catch (error) {
+      // Convertir fecha a string
+      const fechaNacimientoString = fechaNac.toLocaleDateString('es-ES', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      });
+
+      // Guardar usuario usando StorageHelper
+      const newUser = await StorageHelper.saveUser({
+        nombre: formData.nombre.trim(),
+        apellidos: formData.apellidos.trim(),
+        username: formData.username.trim(),
+        correo: formData.correo.trim(),
+        contraseña: formData.contraseña,
+        fechaNacimiento: fechaNacimientoString,
+        descripcion: '',
+        avatar: 'https://via.placeholder.com/150'
+      });
+
+      // Guardar como usuario actual (sesión)
+      await StorageHelper.setCurrentUser(newUser);
+
       setIsLoading(false);
-      Alert.alert('Error', 'No se pudo completar el registro');
+      Alert.alert(
+        '✅ Registro Exitoso', 
+        'Tu cuenta ha sido creada correctamente. Ahora puedes iniciar sesión.',
+        [
+          {
+            text: 'Iniciar Sesión',
+            onPress: () => router.replace('/auth/login' as any)
+          }
+        ]
+      );
+      
+    } catch (error: any) {
+      setIsLoading(false);
+      Alert.alert('Error de Registro', error.message || 'No se pudo completar el registro');
     }
   };
   
