@@ -20,12 +20,60 @@ const RootLayout = () => {
   if (!fontsLoaded && !error) return null;
   return (
     <GestureHandlerRootView style={{flex:1}}>
-      <Stack screenOptions={{headerShown:false}}>
+      <Stack 
+        screenOptions={{
+          headerShown: false,
+          // Configuración de transición para mejor fluidez
+          animation: 'slide_from_right',
+          animationDuration: 300,
+          gestureEnabled: true,
+          gestureDirection: 'horizontal',
+        }}
+      >
         <Stack.Screen name="/(tabs)" />
-        <Stack.Screen name="auth/login" />
-        <Stack.Screen name="auth/register" />
-        <Stack.Screen name="perfil" />
-        <Stack.Screen name="ajustes" />
+        <Stack.Screen 
+          name="auth/login" 
+          options={{
+            animation: 'slide_from_right',
+            animationDuration: 350,
+            gestureEnabled: true,
+          }}
+        />
+        <Stack.Screen 
+          name="auth/register" 
+          options={{
+            animation: 'slide_from_right',
+            animationDuration: 350,
+            gestureEnabled: true,
+          }}
+        />
+        <Stack.Screen 
+          name="perfil" 
+          options={{
+            animation: 'slide_from_right',
+            animationDuration: 400,
+            gestureEnabled: true,
+            gestureDirection: 'horizontal',
+          }}
+        />
+        <Stack.Screen 
+          name="ajustes" 
+          options={{
+            animation: 'slide_from_right',
+            animationDuration: 400,
+            gestureEnabled: true,
+            gestureDirection: 'horizontal',
+          }}
+        />
+        <Stack.Screen 
+          name="chat-room" 
+          options={{
+            animation: 'slide_from_right',
+            animationDuration: 400,
+            gestureEnabled: true,
+            gestureDirection: 'horizontal',
+          }}
+        />
       </Stack>
     </GestureHandlerRootView>
   );   

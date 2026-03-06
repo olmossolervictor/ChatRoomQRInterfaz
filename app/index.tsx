@@ -39,5 +39,5 @@ export default function Index() {
     );
   }
 
-  return hasSession ? <Redirect href="/(tabs)/chat-general" /> : <Redirect href="/auth/login" />;
+  return hasSession ? <Redirect href="/(tabs)/home" /> : <Redirect href="/auth/login" />;
 }

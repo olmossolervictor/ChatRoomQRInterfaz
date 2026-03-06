@@ -15,14 +15,22 @@ import {
   Modal
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { useRouter, useNavigation } from 'expo-router';
 import { StorageHelper, User } from '@/utils/storage';
 import * as ImagePicker from 'expo-image-picker';
 import { Camera } from 'expo-camera';
 import DefaultAvatar from '../../../components/DefaultAvatar';
 
+// Constants para las páginas
+const PAGE = {
+  PERFIL: 0,
+  CHAT_GENERAL: 1,
+  CHATS_PRIVADOS: 2,
+};
+
 export default function ModificarPerfilScreen() {
   const router = useRouter();
+  const navigation = useNavigation();
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
@@ -35,6 +43,11 @@ export default function ModificarPerfilScreen() {
     descripcion: '',
     avatar: 'default'
   });
+
+  // Función para volver atrás - usando navigation.goBack() para mejor fluidez
+  const goBack = () => {
+    navigation.goBack();
+  };
 
   // Cargar datos del usuario actual al montar el componente
   useEffect(() => {
@@ -75,11 +88,11 @@ export default function ModificarPerfilScreen() {
         });
       } else {
         Alert.alert('Error', 'No hay sesión activa');
-        router.replace('/(tabs)/chat-general' as any);
+        goBack();
       }
     } catch (error) {
       Alert.alert('Error', 'No se pudo cargar la información del usuario');
-      router.replace('/(tabs)/chat-general' as any);
+      goBack();
     }
   };
 
@@ -123,7 +136,7 @@ export default function ModificarPerfilScreen() {
           [
             {
               text: 'OK',
-              onPress: () => router.replace('/(tabs)' as any)
+              onPress: () => goBack()
             }
           ]
         );
@@ -220,7 +233,7 @@ export default function ModificarPerfilScreen() {
     >
       <View style={styles.contentContainer}>
         <View style={styles.header}>
-          <TouchableOpacity style={styles.backButton} onPress={() => router.replace('/(tabs)' as any)}>
+          <TouchableOpacity style={styles.backButton} onPress={goBack}>
             <Ionicons name="arrow-back" size={24} color="white" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Modificar Perfil</Text>
@@ -233,19 +246,19 @@ export default function ModificarPerfilScreen() {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-        <View style={styles.avatarSection}>
-          <View style={styles.avatarContainer}>
-            {formData.avatar && formData.avatar !== 'default' ? (
-              <Image source={{ uri: formData.avatar }} style={styles.avatar} />
-            ) : (
-              <DefaultAvatar size={120} />
-            )}
-            <TouchableOpacity style={styles.editAvatarButton} onPress={handleChangeAvatar}>
-              <Ionicons name="camera" size={20} color="white" />
-            </TouchableOpacity>
-          </View>
-          <Text style={styles.avatarText}>Toca para cambiar tu avatar</Text>
-        </View>
+            <View style={styles.avatarSection}>
+              <View style={styles.avatarContainer}>
+                {formData.avatar && formData.avatar !== 'default' ? (
+                  <Image source={{ uri: formData.avatar }} style={styles.avatar} />
+                ) : (
+                  <DefaultAvatar size={120} />
+                )}
+                <TouchableOpacity style={styles.editAvatarButton} onPress={handleChangeAvatar}>
+                  <Ionicons name="camera" size={20} color="white" />
+                </TouchableOpacity>
+              </View>
+              <Text style={styles.avatarText}>Toca para cambiar tu avatar</Text>
+            </View>
 
         <View style={styles.formSection}>
           <Text style={styles.sectionTitle}>Información Básica</Text>
@@ -303,13 +316,8 @@ export default function ModificarPerfilScreen() {
           </View>
         </View>
 
-        {/* Espacio dinámico para el teclado */}
-        {keyboardHeight > 0 && (
-          <View style={[styles.keyboardSpacer, { height: keyboardHeight + 20 }]} />
-        )}
-
         <View style={styles.buttonContainer}>
-          <Pressable style={styles.cancelButton} onPress={() => router.replace('/(tabs)' as any)}>
+          <Pressable style={styles.cancelButton} onPress={goBack}>
             <Text style={styles.cancelButtonText}>Cancelar</Text>
           </Pressable>
           <Pressable style={[styles.saveButton, isLoading && styles.buttonDisabled]} onPress={handleSave} disabled={isLoading}>
@@ -330,6 +338,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
   },
   contentContainer: {
+    flex: 1,
+  },
+  animatedContainer: {
     flex: 1,
   },
   scrollView: {
@@ -432,10 +443,6 @@ const styles = StyleSheet.create({
   },
   descriptionContainer: {
     marginBottom: 20,
-  },
-  keyboardSpacer: {
-    width: '100%',
-    backgroundColor: 'transparent',
   },
   buttonContainer: {
     flexDirection: 'row',

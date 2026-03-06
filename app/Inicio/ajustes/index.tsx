@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -12,16 +12,22 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { useRouter, useNavigation } from 'expo-router';
 import { StorageHelper } from '@/utils/storage';
 import * as ImagePicker from 'expo-image-picker';
 
 export default function AjustesScreen() {
   const router = useRouter();
+  const navigation = useNavigation();
   const [isLoading, setIsLoading] = useState(false);
   const [cameraPermission, setCameraPermission] = useState(false);
   const [notificationPermission, setNotificationPermission] = useState(false);
   const [locationPermission, setLocationPermission] = useState(false);
+
+  // Función para volver atrás - usando navigation.goBack() para mejor fluidez
+  const goBack = () => {
+    navigation.goBack();
+  };
 
   // Verificar el estado actual de los permisos al cargar la pantalla y al volver de ajustes
   useEffect(() => {
@@ -339,10 +345,7 @@ export default function AjustesScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Pressable style={styles.backButton} onPress={() => {
-          router.push('/(tabs)' as any);
-          setTimeout(() => router.replace('/(tabs)' as any), 50);
-        }}>
+        <Pressable style={styles.backButton} onPress={goBack}>
           <Ionicons name="arrow-back" size={24} color="white" />
         </Pressable>
         <Text style={styles.headerTitle}>Ajustes</Text>
